@@ -1,6 +1,8 @@
 from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework import status
+from . import serializer
 
 class HelloAPI(APIView):
 
@@ -16,6 +18,13 @@ class HelloAPI(APIView):
     
     def post(self, request, format = None):
 
-        received_data = request.data
+        serialized_data = serializer.programming_serializer(data = request.data)
 
-        name = received_data.get('')
+        if serialized_data.is_valid():
+
+            name = serialized_data.validated_data.get('name')
+            message = {"hola {0}".format(name)}
+
+            return Response({"message":message})
+        
+        return Response({"error": status.HTTP_400_BAD_REQUEST})
